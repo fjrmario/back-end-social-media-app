@@ -33,31 +33,37 @@ const logIn = async (req, res) => {
     const { email, password } = req.body;
     const user = await User.findOne({ email }).exec();
 
-    if (!user) {
-        return res.send('Failed to Log In');
+    if (!user ||  !await bcrypt.compare(password, user.password)) {
+        return res.send('Incorrect email or password');
     }
 
-    const isPasswordMatch = await bcrypt.compare(password, user.password);
-    if(!isPasswordMatch){
-        return res.send('Failed to Log In')
-    }
-
-    res.redirect('/home');
+    req.session.userId = user._id
+    res.redirect(`/home/${user.userid}`);
     res.render('content/index')
 };
 
-// function ensureAuthenticated (req, res, next) {
-//     if (req.isAuthenticated()){
-//         return next();
-//     }
-//     // res.redirect('content/index')
-// }
+const requireAuthentication = async (req, res, next) => {
+    const userId = req.session.userId;
 
+    if(!userId){
+        return res.send('You must be logged in');
+    }
+
+    const user = await User.findById(userId);
+
+    if (!user){
+        return res.send('Invalid User');
+    }
+
+    req.user = user;
+
+    next();
+}
 
 module.exports = {
     signUp,
     logIn,
     showSignUpPage,
     showlogInPage,
-    // ensureAuthenticated   
+    requireAuthentication
 }

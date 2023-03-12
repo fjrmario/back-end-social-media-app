@@ -1,1 +1,15 @@
-p . Hello World tester1
+h1 Hello #{user.userid}, Welcome Back!
+
+p You have: #{user.friends.length} friends 
+p You have created: #{user.posts.length} posts
+
+form(action=`/home/${user.userid}`, method='POST')
+    input(type="text", name="post", required, placeholder="What is on your mind?")
+    br
+    button(type="submit") Post
+
+h3 #{user.userid} Posts 
+ul  
+    each post in posts 
+        li= post.post 
+        p= post.postTimestamp 
