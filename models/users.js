@@ -10,10 +10,16 @@ const userSchema = new Schema(
             required: true,
             unique: true
         },
+        email:{
+            type: String,
+            required: true,
+            unique: true,
+        },
         password: {
             type: String,
             required: true,
-            match: /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*]).{8,}$/
+            match: /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*]).{8,}$/,
+            minLength: 8
         }
     },
     {
@@ -21,4 +27,5 @@ const userSchema = new Schema(
     }
 );
 
-module.exports = mongoose.model("User", userSchema)
+const User = mongoose.model("User", userSchema)
+module.exports = User;

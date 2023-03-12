@@ -1,0 +1,17 @@
+
+nav
+    a(href="/") Home 
+
+h2 Log In 
+
+form(action='/users/login', method='POST')
+  fieldset
+    legend Login
+    label email :
+      input(name='email')
+    br
+    label Password:
+      input(name='password')
+    button Login
+
+a(href="/users/signup") New here? Sign Up for free!

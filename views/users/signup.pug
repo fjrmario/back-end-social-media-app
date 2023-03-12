@@ -1,0 +1,18 @@
+
+nav
+    a(href="/") Home 
+
+h2 Sign Up 
+
+form(action='/users/signup', method='POST')
+  fieldset
+    legend Login
+    label Userid:
+      input(name='userid')
+    br
+    label email:
+      input(name='email')
+    br
+    label Password:
+      input(name='password')
+    button Sign Up 
