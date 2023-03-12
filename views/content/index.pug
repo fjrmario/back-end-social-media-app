@@ -12,4 +12,4 @@ h3 #{user.userid} Posts
 ul  
     each post in posts 
         li= post.post 
-        p= post.postTimestamp 
+        p= getTimeAgo(post.postTimestamp )
