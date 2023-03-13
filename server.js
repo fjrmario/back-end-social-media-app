@@ -3,7 +3,7 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
-const moment = require('moment');
+const methodOverride = require('method-override');
 const session = require('express-session');
 
 require('dotenv').config();
@@ -19,6 +19,7 @@ var app = express();
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 
+app.use(methodOverride('_method'));
 app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
@@ -33,7 +34,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 app.use('/home', activityRouter)
 app.use('/users', usersRouter);
-// app.use('/profiles', profilesRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

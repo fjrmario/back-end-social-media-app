@@ -21,7 +21,12 @@ const createNewPost = async (req, res) => {
     try {
         const user = await User.findOne({userid});
 
-        const activity = new Activity({user: user._id, post})
+        const activity = new Activity(
+            {
+                user: user._id, 
+                post
+            }
+        )
 
         await activity.save();
         user.posts.push(activity._id);
@@ -34,6 +39,37 @@ const createNewPost = async (req, res) => {
         console.log(error)
     }
 }
+
+// const createAComment = async (req, res) => {
+//     const { comments } = req.body;
+    
+// }
+
+const deletePost = async (req, res) => {
+    const { userid, postid } = req.params;
+ 
+    try{
+        const activity = await Activity.findOne({_id:postid});
+
+        const postOwnerId = activity.user;
+
+        await User.updateOne(
+            {_id:postOwnerId},
+            {$pull: {posts:postid}}
+        );
+
+        await Activity.deleteOne(
+            {_id:postid}
+        );
+        
+        res.redirect(`/home/${userid}`);
+    }
+    
+    catch (error){
+        console.log(error)
+    }
+};
+
 
 
 function getTimeAgo(postTimestamp){
@@ -49,36 +85,52 @@ function getTimeAgo(postTimestamp){
     const MULTIPLEYEARS = 31536000000
 
     if(timeDiff < MINS){
+
         return "just now"
+
     }
     else if (timeDiff < HOURS) {
+
         minsAgo = Math.floor(timeDiff / MINS);
         return `${minsAgo} minute${minsAgo > 1 ? 's' : ''} ago`;
+
     }
     else if(timeDiff < DAYS) {
+
         const hoursAgo = Math.floor(timeDiff / HOURS);
         return `${hoursAgo} hour${hoursAgo > 1 ? 's' : ''} ago`;
+
     }
     else if (timeDiff < WEEKS) {
+
         const daysAgo = Math.floor(timeDiff / DAYS);
+        return `${daysAgo} hour${daysAgo > 1 ? 's' : ''} ago`;
+
     }
     else if (timeDiff < YEARS) {
+
         const weeksAgo = Math.floor(timeDiff / WEEKS);
         return `${weeksAgo} week${weeksAgo > 1 ? 's' : ''} ago`;
+
     }
     else if (timeDiff < MULTIPLEYEARS) {
+
         const monthsAgo = Math.floor(timeDiff / YEARS);
         return `${monthsAgo} month${monthsAgo > 1 ? 's' : ''} ago`;
+
     }
     else {
+
         const yearsAgo = Math.floor(timeDiff / MULTIPLEYEARS);
         return `${yearsAgo} year${yearsAgo > 1 ? 's' : ''} ago`;
+
     }
 }
 
 module.exports = {
     showProfile,
     createNewPost,
+    deletePost,
     getTimeAgo
 }
 
