@@ -55,53 +55,32 @@ const createNewPost = async (req, res) => {
     }
 }
 
-// const createAComment = async (req, res) => {
-//     const { userid } = req.params;
-//     const { post, comments, postId } = req.body;
+const createAComment = async (req, res) => {
+
+    const { userid, postid } = req.params;
+    const { commentNow } = req.body;
     
-//     console.log(userid);
-//     console.log(post);
-//     console.log(comments);
-//     console.log(postId);
-//     try{
-//         if(post){
-//             const activity = new Activity.Post(
-//                 {
-//                     user: userid, 
-//                     post
-//                 }
-//             );
+    try{
+        const post = await Activity.Post.findById(postid);
 
-//             const savedActivity = await Activity.Post.save();
-//             const user = await User.findByIdAndUpdate(
-//                 userid,
-//                 { $push: {
-//                     posts: savedActivity._id
-//                 }},
-//                 {new: true}
-//             );
+        const comment = new Activity.Comment(
+            {
+                user: req.user._id, 
+                content: commentNow
+            }
+        );
 
-//             res.redirect(`/home/${userid}`);
-//         }
+        await comment.save();
+        post.comments.push(comment);
+        await post.save();
 
-//         else if (comments) {
-//             const updatedActivity = await Activity.Post.findByIdAndUpdate(
-//                 postId,
-//                 {
-//                     $push: {
-//                         comments: {user: userid, content: comments},
-//                     },
-//                 },
-//                 {new: true}
-//             );
-//             res.redirect(`/home/${userid}`);
-//         }
-//     }
+        res.redirect(`/home/${userid}`);
+    }
 
-//     catch (error) {
-//         console.log(error)
-//     }
-// }
+    catch (error) {
+        console.log(error)
+    }
+}
 
 const deletePost = async (req, res) => {
     const { userid, postid } = req.params;
@@ -188,7 +167,7 @@ function getTimeAgo(postTimestamp){
 module.exports = {
     showProfile,
     createNewPost,
-    // createAComment,
+    createAComment,
     deletePost,
     getTimeAgo
 }

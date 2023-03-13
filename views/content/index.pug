@@ -18,11 +18,10 @@ ul
         p= getTimeAgo(post.postTimestamp )
         
         //- ul 
-        //-     each comment in post.comments
+        //-     each comment in comments
         //-         li 
         //-             p= comment.content 
         //-             p= getTimeAgo(comment.contentTimeStamp)
-        form(action=`/home/${user.userid}`, method='POST')
+        form(action=`/home/${user.userid}/comment/${post._id}`, method='POST')
             input(type="text", name="comments", required, placeholder="Thoughts on this?")
-            input(type="hidden", name="postId", value=post._id)
-            button(type="submit") Comment 
+            button  Comment 
