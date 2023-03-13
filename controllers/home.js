@@ -1,32 +1,47 @@
+const { default: mongoose } = require('mongoose');
+const { ObjectId } = require('mongoose').Types
 const Activity = require('../models/activity');
 const User = require("../models/users");
-const { post } = require("../routes");
 
 const showProfile = async (req, res) => {
     const userid = req.params.userid
+
     try{
-        const user = await User.findOne({ userid }).populate('posts', 'post').populate({path:'posts', model: Activity, options: {sort: { postTimestamp: -1}}});
-        res.render('content/index', { posts: user.posts, user: user, getTimeAgo: getTimeAgo  });
+        const user = await User.findOne({ userid })
+        .populate({
+            path: 'posts',
+            model: Activity.Post,
+            select: 'post postTimestamp',
+            options: {sort: {postTimestamp: -1}
+        }})
+
+        res.render('content/index', 
+        {
+            posts: user.posts, 
+            user: user, 
+            getTimeAgo: getTimeAgo  
+        });
     }
 
     catch(error){
         console.log(error)
     }
+
 }
 
 const createNewPost = async (req, res) => {
     const { post } = req.body;
     const { userid } = req.params;
-    
-    try {
-        const user = await User.findOne({userid});
 
-        const activity = new Activity(
+    try {
+        const user = await User.findOne({userid})
+
+        const activity = new Activity.Post(
             {
                 user: user._id, 
                 post
             }
-        )
+        );
 
         await activity.save();
         user.posts.push(activity._id);
@@ -41,15 +56,58 @@ const createNewPost = async (req, res) => {
 }
 
 // const createAComment = async (req, res) => {
-//     const { comments } = req.body;
+//     const { userid } = req.params;
+//     const { post, comments, postId } = req.body;
     
+//     console.log(userid);
+//     console.log(post);
+//     console.log(comments);
+//     console.log(postId);
+//     try{
+//         if(post){
+//             const activity = new Activity.Post(
+//                 {
+//                     user: userid, 
+//                     post
+//                 }
+//             );
+
+//             const savedActivity = await Activity.Post.save();
+//             const user = await User.findByIdAndUpdate(
+//                 userid,
+//                 { $push: {
+//                     posts: savedActivity._id
+//                 }},
+//                 {new: true}
+//             );
+
+//             res.redirect(`/home/${userid}`);
+//         }
+
+//         else if (comments) {
+//             const updatedActivity = await Activity.Post.findByIdAndUpdate(
+//                 postId,
+//                 {
+//                     $push: {
+//                         comments: {user: userid, content: comments},
+//                     },
+//                 },
+//                 {new: true}
+//             );
+//             res.redirect(`/home/${userid}`);
+//         }
+//     }
+
+//     catch (error) {
+//         console.log(error)
+//     }
 // }
 
 const deletePost = async (req, res) => {
     const { userid, postid } = req.params;
  
     try{
-        const activity = await Activity.findOne({_id:postid});
+        const activity = await Activity.Post.findOne({_id:postid});
 
         const postOwnerId = activity.user;
 
@@ -58,7 +116,7 @@ const deletePost = async (req, res) => {
             {$pull: {posts:postid}}
         );
 
-        await Activity.deleteOne(
+        await Activity.Post.deleteOne(
             {_id:postid}
         );
         
@@ -130,6 +188,7 @@ function getTimeAgo(postTimestamp){
 module.exports = {
     showProfile,
     createNewPost,
+    // createAComment,
     deletePost,
     getTimeAgo
 }

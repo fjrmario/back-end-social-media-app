@@ -11,9 +11,18 @@ form(action=`/home/${user.userid}`, method='POST')
 h3 #{user.userid} Posts 
 ul  
     each post in posts 
+        p= user.userid
         li= post.post 
         form(action=`/home/${user.userid}/posts/${post._id}/?_method=DELETE`, method='POST') 
             button delete 
+        p= getTimeAgo(post.postTimestamp )
+        
+        //- ul 
+        //-     each comment in post.comments
+        //-         li 
+        //-             p= comment.content 
+        //-             p= getTimeAgo(comment.contentTimeStamp)
         form(action=`/home/${user.userid}`, method='POST')
             input(type="text", name="comments", required, placeholder="Thoughts on this?")
-        p= getTimeAgo(post.postTimestamp )
+            input(type="hidden", name="postId", value=post._id)
+            button(type="submit") Comment 

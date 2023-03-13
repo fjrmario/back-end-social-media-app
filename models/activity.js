@@ -1,7 +1,25 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const activitySchema = new Schema(
+const commentSchema = new Schema([
+    {
+        user: {
+            type: Schema.Types.ObjectId,
+            ref: 'User',
+            required: true
+        },
+        content: {
+            type: String,
+            required: true
+        },
+        contentTimeStamp: {
+            type: Date,
+            default: Date.now()
+        }
+    }
+])
+
+const postSchema = new Schema(
     {
         user: {
             type: Schema.Types.ObjectId,
@@ -10,7 +28,6 @@ const activitySchema = new Schema(
         },
         post: {
           type: String,
-          required: true,
         },
         postTimestamp:{
             type: Date,
@@ -20,25 +37,17 @@ const activitySchema = new Schema(
           type: Schema.Types.ObjectId,
           ref: 'User'
         }],
-        comments: [
-            {
-                user: {
-                    type: Schema.Types.ObjectId,
-                    ref: 'User',
-                    required: true
-                },
-                content: {
-                    type: String,
-                    required: true
-                },
-                contentTimeStamp: {
-                    type: Date,
-                    default: Date.now()
-                }
-            }
+        comment: [
+            commentSchema
         ]
     }
 );
 
-const Activity = mongoose.model("activity", activitySchema)
-module.exports = Activity;
+
+const Post = mongoose.model("Post", postSchema)
+const Comment = mongoose.model('comment', commentSchema)
+
+module.exports = {
+    Post,
+    Comment
+}
