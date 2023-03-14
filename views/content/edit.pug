@@ -1,0 +1,19 @@
+form(action=`/home/${user.userid}/edit?_method=PUT`, method='POST')
+    p #{user.userid}
+        input(type="text", name="userid", placeholder="New Userid here")
+        br
+        button(type="submit") Edit Userid
+
+form(action=`/home/${user.userid}/edit?_method=PUT`, method='POST')
+    p #{user.email}
+        input(type="text", name="email", placeholder="update your email here")
+        br
+        button(type="submit") Edit Email
+
+form(action=`/home/${user.userid}/edit?_method=PUT`, method='POST')
+    p #{user.password}
+        input(type="text", name="password", placeholder="update your password here")
+        br
+        button(type="submit") Edit Password
+
+

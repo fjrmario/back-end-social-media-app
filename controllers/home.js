@@ -1,7 +1,7 @@
-const { default: mongoose } = require('mongoose');
-const { ObjectId } = require('mongoose').Types
 const Activity = require('../models/activity');
 const User = require("../models/users");
+
+
 
 const showProfile = async (req, res) => {
     const userid = req.params.userid
@@ -17,14 +17,70 @@ const showProfile = async (req, res) => {
 
         res.render('content/index', 
         {
-            posts: user.posts, 
+            // posts: user.posts, 
             user: user, 
             getTimeAgo: getTimeAgo  
         });
+        
     }
 
     catch(error){
         console.log(error)
+    }
+
+}
+
+const showEditPage = async (req, res) => {
+    const userid = req.params.userid
+
+    try{
+        const user = await User.findOne({userid});
+        res.render('content/edit', {user: user})
+    }
+
+    catch(error){
+        res.send(error)
+    }
+}
+
+const updateProfile = async (req, res) => {
+    const currentUser = req.params.userid
+    const { userid, email, password } = req.body
+
+    if(password){
+        try{
+            const saltRounds = 10;
+            const hashedPassword = await bcrypt.hash(password, saltRounds); 
+            const user = await User.findOneAndUpdate({userid: currentUser},{
+                password: hashedPassword
+            },{new: true});
+            res.send("Updated Successfully");
+        }
+        catch (error){
+            res.send(error)
+        }
+    }
+    if(email){
+        try{
+            const user = await User.findOneAndUpdate({userid: currentUser}, { 
+                email: email
+            },{new: true});
+            res.send("Updated Successfully");
+        }
+        catch (error){
+            res.send(error)
+        }
+    }
+    if(userid){
+        try{
+            const user = await User.findOneAndUpdate({userid: currentUser}, { 
+                userid: userid
+            }, {new: true});
+            res.send("Updated Successfully");
+        }
+        catch (error){
+            res.send(error)
+        }
     }
 
 }
@@ -55,7 +111,7 @@ const createNewPost = async (req, res) => {
     }
 }
 
-const createAComment = async (req, res) => {
+const createAComment = async (req, res, next) => {
 
     const { userid, postid } = req.params;
     const { commentNow } = req.body;
@@ -74,10 +130,58 @@ const createAComment = async (req, res) => {
         post.comments.push(comment);
         await post.save();
 
-        res.redirect(`/home/${userid}`);
+        const updatedPost = await Activity.Post.findById(postid).populate({
+                path: 'comments',
+                model: Activity.Comment,
+                select: 'content contentTimestamp',
+                options: {sort: {postTimestamp: -1}
+        }})
+
+        res.render('content/index', 
+        {
+            comments: updatedPost.comments, 
+            user: req.user,
+            getTimeAgo: getTimeAgo  
+        });
+
+        next();
     }
 
     catch (error) {
+        console.log(error)
+    }
+}
+
+const renderPostAndComments = async (req, res) =>{
+    const { userid } = req.params;
+
+    try{
+        const user = await User.findOne({ userid }).populate({
+            path: 'posts',
+            model: Activity.Post,
+            select: 'post postTimestamp likes comments',
+            populate: {
+                path: 'comments',
+                model: Activity.Comment,
+                select: 'user content contentTimestamp',
+                populate: {
+                    path: 'user',
+                    model: User,
+                    select: 'userid'
+                },
+                options: { sort: { contentTimestamp: -1}}
+            },
+            options: { sort: { postTimestamp: -1 }}
+        });
+
+        res.render('content/index', {
+            posts: user.posts,
+            user:req.user,
+            getTimeAgo: getTimeAgo
+        });
+    }
+
+    catch(error){
         console.log(error)
     }
 }
@@ -166,8 +270,11 @@ function getTimeAgo(postTimestamp){
 
 module.exports = {
     showProfile,
+    showEditPage,
+    updateProfile,
     createNewPost,
     createAComment,
+    renderPostAndComments,
     deletePost,
     getTimeAgo
 }

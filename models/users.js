@@ -6,7 +6,9 @@ const userSchema = new Schema(
         userid: {
             type: String,
             required: true,
-            unique: true
+            unique: true,
+            minLength: 3,
+            maxLength: 10
         },
         email:{
             type: String,
@@ -19,12 +21,18 @@ const userSchema = new Schema(
             match: /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*]).{8,}$/,
             minLength: 8
         },
-        friends: [{
-            type:Schema.Types.ObjectId,
+        friends: {
+            type: Array,
+            default: [],
             ref:'User',
-        }],
+        },
+        isAdmin: {
+            type: Boolean,
+            default: false
+        },
         posts:[{
-            type: Schema.Types.ObjectId,
+            type: Array,
+            default: [],
             ref: 'Post'
         }]
     },
