@@ -30,11 +30,11 @@ const userSchema = new Schema(
             type: Boolean,
             default: false
         },
-        posts:[{
+        posts:{
             type: Array,
             default: [],
             ref: 'Post'
-        }]
+        }
     },
     {
         timestamps: true,

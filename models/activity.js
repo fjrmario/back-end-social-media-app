@@ -26,15 +26,17 @@ const postSchema = new Schema(
         },
         post: {
           type: String,
+          maxLength: 500
         },
         postTimestamp:{
             type: Date,
             default: Date.now()
         },
-        likes: [{
-          type: Schema.Types.ObjectId,
+        likes: {
+          type: Array,
+          default: [],
           ref: 'User'
-        }],
+        },
         comments: [
             commentSchema
         ]

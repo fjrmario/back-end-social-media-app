@@ -110,7 +110,7 @@ const createNewPost = async (req, res) => {
         );
 
         await activity.save();
-        user.posts.push(activity._id);
+        user.posts.unshift(activity._id);
         await user.save();
 
         res.redirect(`/home/${userid}`);
@@ -198,17 +198,19 @@ const renderPostAndComments = async (req, res) =>{
 
 const deletePost = async (req, res) => {
     const { userid, postid } = req.params;
- 
+
+    console.log({postid});
+    console.log({_id:postid});
     try{
         const activity = await Activity.Post.findOne({_id:postid});
-
         const postOwnerId = activity.user;
-
-        await User.updateOne(
-            {_id:postOwnerId},
-            {$pull: {posts:postid}}
-        );
-
+        const user = await User.findOne(postOwnerId);
+        const index = user.posts.indexOf(postid)
+        if(index > -1){
+            user.posts.splice(index,1)
+            await user.save();
+        }
+       
         await Activity.Post.deleteOne(
             {_id:postid}
         );

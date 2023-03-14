@@ -13,14 +13,14 @@ form(action=`/home/${user.userid}`, method='POST')
     button(type="submit") Post
 
 h3 #{user.userid} Posts 
-//- ul  
-//-     each post in posts 
-//-         li 
-//-             p= user.userid
-//-             p= post.post 
-//-             form(action=`/home/${user.userid}/posts/${post._id}/?_method=DELETE`, method='POST') 
-//-             button delete 
-//-             p= getTimeAgo(post.postTimestamp )
+ul  
+    each post in posts 
+        li 
+            p= user.userid
+            p= post.post 
+            form(action=`/home/${user.userid}/posts/${post._id}/?_method=DELETE`, method='POST') 
+                button delete 
+            p= getTimeAgo(post.postTimestamp )
         
 //-         if post.comments && post.comments.length > 0
 //-             ul 
