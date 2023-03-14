@@ -1,5 +1,6 @@
 const Activity = require('../models/activity');
 const User = require("../models/users");
+const bcrypt = require('bcrypt');
 
 
 
@@ -43,48 +44,75 @@ const showEditPage = async (req, res) => {
     }
 }
 
+// const updateProfile = async (req, res) => {
+//     const currentUser = req.params.userid
+//     const { userid, email, password } = req.body
+
+//     console.log(req.body)
+//     if(password){
+//         try{
+//             const saltRounds = 10;
+//             const hashedPassword = await bcrypt.hash(password, saltRounds); 
+//             await User.findOneAndUpdate({userid: currentUser},{
+//                 password: hashedPassword
+//             });
+//             res.send("Updated Successfully");
+//         }
+//         catch (error){
+//             res.send(error)
+//         }
+//     }
+
+//     if(email){
+//         try{
+//             await User.findOneAndUpdate({userid: currentUser}, { 
+//                 email: email
+//             });
+//             res.send("Updated Successfully");
+//         }
+//         catch (error){
+//             res.send(error)
+//         }
+//     }
+//     if(userid){
+//         try{
+//             await User.findOneAndUpdate({userid: currentUser}, { 
+//                 userid: userid
+//             });
+//             res.send("Updated Successfully");
+//         }
+//         catch (error){
+//             res.send(error)
+//         }
+//     }
+
+// }
+
 const updateProfile = async (req, res) => {
-    const currentUser = req.params.userid
-    const { userid, email, password } = req.body
-
-    if(password){
-        try{
-            const saltRounds = 10;
-            const hashedPassword = await bcrypt.hash(password, saltRounds); 
-            const user = await User.findOneAndUpdate({userid: currentUser},{
-                password: hashedPassword
-            },{new: true});
-            res.send("Updated Successfully");
-        }
-        catch (error){
-            res.send(error)
-        }
+    const currentUser = req.params.userid;
+    const { userid, email, password } = req.body;
+  
+    const updateFields = {};
+    if (userid) updateFields.userid = userid;
+    if (email) updateFields.email = email;
+    if (password) {
+      const saltRounds = 10;
+      const hashedPassword = await bcrypt.hash(password, saltRounds);
+      updateFields.password = hashedPassword;
     }
-    if(email){
-        try{
-            const user = await User.findOneAndUpdate({userid: currentUser}, { 
-                email: email
-            },{new: true});
-            res.send("Updated Successfully");
-        }
-        catch (error){
-            res.send(error)
-        }
-    }
-    if(userid){
-        try{
-            const user = await User.findOneAndUpdate({userid: currentUser}, { 
-                userid: userid
-            }, {new: true});
-            res.send("Updated Successfully");
-        }
-        catch (error){
-            res.send(error)
-        }
-    }
+  
+    try {
+      const user = await User.findOneAndUpdate({ userid: currentUser }, updateFields);
+      res.redirect(`/home/${user.userid}`);
+      res.render('content/index')
 
-}
+    } 
 
+    catch (error) {
+      res.send(error);
+    }
+};
+  
 const createNewPost = async (req, res) => {
     const { post } = req.body;
     const { userid } = req.params;
