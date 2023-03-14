@@ -223,14 +223,14 @@ const deletePost = async (req, res) => {
 
 const searchFriends = async (req, res) => {
     const { userid } = req.query;
-    const userId = req.session.userId;
 
-    console.log(req.session);
+    console.log(req.params.userid);
+
     try{
         const result = await User.findOne({userid}).populate('posts')
-        console.log(result);
         res.render(`content/search`, {
             result,
+            back: req.params.userid,
             getTimeAgo: getTimeAgo
             
         })
