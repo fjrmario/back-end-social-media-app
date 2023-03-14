@@ -26,16 +26,20 @@ const showProfile = async (req, res) => {
             }
         }})
 
+        let comments = [];
+        if(user.posts[0]){
+            comments = user.posts[0].comments
+        }
 
+        console.log
         res.render('content/index', 
         {
             posts: user.posts, 
             user: user, 
-            comments: user.posts[0].comments,
+            comments: comments,
             getTimeAgo: getTimeAgo  
         });
 
-        console.log(user.posts[0].comments)
         
     }
 
@@ -134,8 +138,7 @@ const createNewPost = async (req, res) => {
 }
 
 const createAComment = async (req, res, next) => {
-
-    const { postid } = req.params;
+    const { userid, postid } = req.params;
     const nowUser = req.user._id
     const { commentNow } = req.body;
 
@@ -158,6 +161,9 @@ const createAComment = async (req, res, next) => {
             select: 'content contentTimestamp'
         })
 
+        res.redirect(`/home/${userid}`);
+
+
     }
 
     catch (error) {
@@ -165,39 +171,6 @@ const createAComment = async (req, res, next) => {
     }
 }
 
-// const renderPostAndComments = async (req, res) =>{
-//     const { userid } = req.params;
-
-//     try{
-//         const user = await User.findOne({ userid }).populate({
-//             path: 'posts',
-//             model: Activity.Post,
-//             select: 'post postTimestamp likes comments',
-//             populate: {
-//                 path: 'comments',
-//                 model: Activity.Comment,
-//                 select: 'user content contentTimestamp',
-//                 populate: {
-//                     path: 'user',
-//                     model: User,
-//                     select: 'userid'
-//                 },
-//                 options: { sort: { contentTimestamp: -1}}
-//             },
-//             options: { sort: { postTimestamp: -1 }}
-//         });
-
-//         res.render('content/index', {
-//             posts: user.posts,
-//             user:req.user,
-//             getTimeAgo: getTimeAgo
-//         });
-//     }
-
-//     catch(error){
-//         console.log(error)
-//     }
-// }
 
 const deletePost = async (req, res) => {
     const { userid, postid } = req.params;
@@ -224,6 +197,27 @@ const deletePost = async (req, res) => {
         console.log(error)
     }
 };
+
+const deleteComment = async (req, res) => {
+    const { userid, postid } = req.params;
+
+    try{
+        const comment = await Activity.Comment.findOne({_id:postid});
+        const post = await Activity.Post.findOne({ comments: comment._id })
+        const commentIndex = post.comments.indexOf(postid)
+        console.log(commentIndex);
+        post.comments.splice(commentIndex, 1)
+        await post.save();
+
+        await Activity.Comment.findOneAndDelete({_id:postid});
+
+        res.redirect(`/home/${userid}`)
+    }
+    
+    catch (error){
+        console.log(error)
+    }
+}
 
 const searchFriends = async (req, res) => {
     const { userid } = req.query;
@@ -309,7 +303,7 @@ module.exports = {
     deleteProfile,
     createNewPost,
     createAComment,
-    // renderPostAndComments,
+    deleteComment,
     deletePost,
     searchFriends,
     getTimeAgo

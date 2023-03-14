@@ -18,21 +18,25 @@ form(action=`/home/${user.userid}`, method='POST')
     button(type="submit") Post
 
 h3 #{user.userid} Posts 
-ul  
-    each post in posts 
-        li 
-            p= user.userid
-            p= post.post 
-            form(action=`/home/${user.userid}/posts/${post._id}/?_method=DELETE`, method='POST') 
-                button delete 
-            p= getTimeAgo(post.postTimestamp )
-        
-            ul 
-                each comment in comments
-                    li 
-                        p= comment.user.userid       
-                        p= comment.content 
-                        p= getTimeAgo(comment.contentTimeStamp)
-        form(action=`/home/${user.userid}/comment/${post._id}`, method='POST')
-            input(type="text", name="commentNow", required, placeholder="Thoughts on this?")
-            button  Comment 
+
+if posts.length > 0
+    ul  
+        each post in posts 
+            li 
+                p= user.userid
+                p= post.post 
+                form(action=`/home/${user.userid}/posts/${post._id}/?_method=DELETE`, method='POST') 
+                    button delete post
+                p= getTimeAgo(post.postTimestamp )
+            
+                ul 
+                    each comment in comments
+                        li 
+                            p= comment.user.userid      
+                            p= comment.content 
+                            form(action=`/home/${user.userid}/comment/${comment._id}/?_method=DELETE`, method='POST') 
+                                button delete comment 
+                            p= getTimeAgo(comment.contentTimeStamp)
+            form(action=`/home/${user.userid}/comment/${post._id}`, method='POST')
+                input(type="text", name="commentNow", required, placeholder="Thoughts on this?")
+                button  Comment 

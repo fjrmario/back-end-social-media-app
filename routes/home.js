@@ -21,6 +21,9 @@ router.post('/:userid', signController.isAuth, homeController.createNewPost);
 router.post('/:userid/comment/:postid', signController.isAuth, homeController.createAComment)
 router.delete(`/:userid/posts/:postid`, homeController.deletePost )
 
+router.delete(`/:userid/comment/:postid`, signController.isAuth, homeController.deleteComment )
+
+
 router.get('/:userid/search', homeController.searchFriends )
 
 module.exports = router;
