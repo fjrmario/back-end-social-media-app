@@ -6,7 +6,6 @@ const bcrypt = require('bcrypt');
 
 const showProfile = async (req, res) => {
     const { userid } = req.params
-    const user = await User.findOne({userid})
 
     try{
         const user = await User.findOne({ userid })
@@ -14,7 +13,7 @@ const showProfile = async (req, res) => {
             path: 'posts',
             model: Activity.Post,
             select: 'post postTimestamp',
-            options: {sort: {postTimestamp: -1}
+            options: {sort: {postTimestamp: -1, _id: -1}
         }})
 
         res.render('content/index', 
@@ -199,9 +198,8 @@ const renderPostAndComments = async (req, res) =>{
 const deletePost = async (req, res) => {
     const { userid, postid } = req.params;
 
-    console.log({postid});
-    console.log({_id:postid});
     try{
+
         const activity = await Activity.Post.findOne({_id:postid});
         const postOwnerId = activity.user;
         const user = await User.findOne(postOwnerId);
@@ -227,7 +225,7 @@ const deletePost = async (req, res) => {
 
 function getTimeAgo(postTimestamp){
     const now = Date.now();
-    const timeDiff = now - postTimestamp;
+    const timeDiff = now - new Date(postTimestamp).getTime();
 
     // Time is in milliSeconds
     const MINS = 60000
