@@ -5,7 +5,8 @@ const bcrypt = require('bcrypt');
 
 
 const showProfile = async (req, res) => {
-    const userid = req.params.userid
+    const { userid } = req.params
+    const user = await User.findOne({userid})
 
     try{
         const user = await User.findOne({ userid })
@@ -18,7 +19,7 @@ const showProfile = async (req, res) => {
 
         res.render('content/index', 
         {
-            // posts: user.posts, 
+            posts: user.posts, 
             user: user, 
             getTimeAgo: getTimeAgo  
         });
@@ -44,50 +45,6 @@ const showEditPage = async (req, res) => {
     }
 }
 
-// const updateProfile = async (req, res) => {
-//     const currentUser = req.params.userid
-//     const { userid, email, password } = req.body
-
-//     console.log(req.body)
-//     if(password){
-//         try{
-//             const saltRounds = 10;
-//             const hashedPassword = await bcrypt.hash(password, saltRounds); 
-//             await User.findOneAndUpdate({userid: currentUser},{
-//                 password: hashedPassword
-//             });
-//             res.send("Updated Successfully");
-//         }
-//         catch (error){
-//             res.send(error)
-//         }
-//     }
-
-//     if(email){
-//         try{
-//             await User.findOneAndUpdate({userid: currentUser}, { 
-//                 email: email
-//             });
-//             res.send("Updated Successfully");
-//         }
-//         catch (error){
-//             res.send(error)
-//         }
-//     }
-//     if(userid){
-//         try{
-//             await User.findOneAndUpdate({userid: currentUser}, { 
-//                 userid: userid
-//             });
-//             res.send("Updated Successfully");
-//         }
-//         catch (error){
-//             res.send(error)
-//         }
-//     }
-
-// }
-
 const updateProfile = async (req, res) => {
     const currentUser = req.params.userid;
     const { userid, email, password } = req.body;
@@ -102,7 +59,7 @@ const updateProfile = async (req, res) => {
     }
   
     try {
-      const user = await User.findOneAndUpdate({ userid: currentUser }, updateFields);
+      const user = await User.findOneAndUpdate({ userid: currentUser }, updateFields, {new: true});
       res.redirect(`/home/${user.userid}`);
       res.render('content/index')
 
@@ -112,6 +69,31 @@ const updateProfile = async (req, res) => {
       res.send(error);
     }
 };
+
+const showDeletePage = async (req, res) => {
+    const { userid } = req.params
+    try{
+        const user = await User.findOne({userid});
+        res.render('users/delete', {user: user})
+    }
+
+    catch(error){
+        res.send(error)
+    }
+}
+
+const deleteProfile = async (req, res) => {
+    const { userid } = req.params
+    console.log({ userid });
+
+    try{
+        await User.deleteOne({ userid})
+        res.redirect(`/`)
+    }
+    catch(error){
+        res.send(error)
+    }
+}
   
 const createNewPost = async (req, res) => {
     const { post } = req.body;
@@ -300,6 +282,8 @@ module.exports = {
     showProfile,
     showEditPage,
     updateProfile,
+    showDeletePage,
+    deleteProfile,
     createNewPost,
     createAComment,
     renderPostAndComments,

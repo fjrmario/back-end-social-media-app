@@ -46,11 +46,6 @@ const signIn = async (req, res) => {
         if(!validPassword){
             return res.send('Incorrect Password')
         }
-
-        console.log(req.session)
-        console.log(req.sessionID)
-        console.log(user._id)
-        console.log("========");
         
         req.session.userId = user._id
 

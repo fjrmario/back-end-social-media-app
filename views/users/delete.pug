@@ -1,0 +1,12 @@
+h1 Hi #{user.userid}! 
+
+h3  please don't go! We promise we will be better!
+
+
+a(href=`/home/${user.userid}`) GO BACK PLEASE! 
+br
+
+form(action=`/home/${user.userid}/delete?_method=DELETE`, method='POST')
+    button Obviously NOT A delete button
+
+

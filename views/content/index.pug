@@ -1,5 +1,8 @@
 h1 Hello #{user.userid}, Welcome Back!
-a(href=`/home/${user.userid}/edit`) Edit 
+a(href=`/home/${user.userid}/edit`) Edit Profile
+br
+a(href=`/home/${user.userid}/delete`) Delete Profile 
+
 
 p You have: #{user.friends.length} friends 
 p You have created: #{user.posts.length} posts

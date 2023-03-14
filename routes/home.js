@@ -9,9 +9,12 @@ router.route('/:userid')
 .put()
 
 router.get('/:userid', homeController.showProfile);
-router.put('/:userid/edit', homeController.updateProfile);
 
+router.put('/:userid/edit', homeController.updateProfile);
 router.get('/:userid/edit', signController.isAuth, homeController.showEditPage)
+
+router.get('/:userid/delete', signController.isAuth, homeController.showDeletePage)
+router.delete('/:userid/delete', signController.isAuth, homeController.deleteProfile)
 
 router.post('/:userid', signController.isAuth, homeController.createNewPost);
 
