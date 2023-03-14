@@ -1,0 +1,18 @@
+a(href=`/home/${userid}`) Back Home 
+
+if result
+    h1 #{result.userid}
+
+    p #{result.userid} have: #{result.friends.length} friends 
+    p #{result.userid} have created: #{result.posts.length} posts
+
+    h3 #{result.userid} Posts 
+    ul  
+        each post in result.posts 
+            li 
+                p= result.userid
+                p= post.post 
+                p= getTimeAgo(post.postTimestamp )
+    
+else 
+    p No user found with said userid... Sorry! 

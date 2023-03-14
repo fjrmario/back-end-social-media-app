@@ -3,6 +3,11 @@ a(href=`/home/${user.userid}/edit`) Edit Profile
 br
 a(href=`/home/${user.userid}/delete`) Delete Profile 
 
+form(action=`/home/${user.userid}/search`, method='GET')
+    input(type="text", name="userid", required, placeholder="Search for friends")
+    br
+    button(type="submit") Search 
+
 
 p You have: #{user.friends.length} friends 
 p You have created: #{user.posts.length} posts

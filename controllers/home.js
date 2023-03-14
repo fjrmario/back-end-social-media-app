@@ -120,80 +120,80 @@ const createNewPost = async (req, res) => {
     }
 }
 
-const createAComment = async (req, res, next) => {
+// const createAComment = async (req, res, next) => {
 
-    const { userid, postid } = req.params;
-    const { commentNow } = req.body;
+//     const { userid, postid } = req.params;
+//     const { commentNow } = req.body;
     
-    try{
-        const post = await Activity.Post.findById(postid);
+//     try{
+//         const post = await Activity.Post.findById(postid);
 
-        const comment = new Activity.Comment(
-            {
-                user: req.user._id, 
-                content: commentNow
-            }
-        );
+//         const comment = new Activity.Comment(
+//             {
+//                 user: req.user._id, 
+//                 content: commentNow
+//             }
+//         );
 
-        await comment.save();
-        post.comments.push(comment);
-        await post.save();
+//         await comment.save();
+//         post.comments.push(comment);
+//         await post.save();
 
-        const updatedPost = await Activity.Post.findById(postid).populate({
-                path: 'comments',
-                model: Activity.Comment,
-                select: 'content contentTimestamp',
-                options: {sort: {postTimestamp: -1}
-        }})
+//         const updatedPost = await Activity.Post.findById(postid).populate({
+//                 path: 'comments',
+//                 model: Activity.Comment,
+//                 select: 'content contentTimestamp',
+//                 options: {sort: {postTimestamp: -1}
+//         }})
 
-        res.render('content/index', 
-        {
-            comments: updatedPost.comments, 
-            user: req.user,
-            getTimeAgo: getTimeAgo  
-        });
+//         res.render('content/index', 
+//         {
+//             comments: updatedPost.comments, 
+//             user: req.user,
+//             getTimeAgo: getTimeAgo  
+//         });
 
-        next();
-    }
+//         next();
+//     }
 
-    catch (error) {
-        console.log(error)
-    }
-}
+//     catch (error) {
+//         console.log(error)
+//     }
+// }
 
-const renderPostAndComments = async (req, res) =>{
-    const { userid } = req.params;
+// const renderPostAndComments = async (req, res) =>{
+//     const { userid } = req.params;
 
-    try{
-        const user = await User.findOne({ userid }).populate({
-            path: 'posts',
-            model: Activity.Post,
-            select: 'post postTimestamp likes comments',
-            populate: {
-                path: 'comments',
-                model: Activity.Comment,
-                select: 'user content contentTimestamp',
-                populate: {
-                    path: 'user',
-                    model: User,
-                    select: 'userid'
-                },
-                options: { sort: { contentTimestamp: -1}}
-            },
-            options: { sort: { postTimestamp: -1 }}
-        });
+//     try{
+//         const user = await User.findOne({ userid }).populate({
+//             path: 'posts',
+//             model: Activity.Post,
+//             select: 'post postTimestamp likes comments',
+//             populate: {
+//                 path: 'comments',
+//                 model: Activity.Comment,
+//                 select: 'user content contentTimestamp',
+//                 populate: {
+//                     path: 'user',
+//                     model: User,
+//                     select: 'userid'
+//                 },
+//                 options: { sort: { contentTimestamp: -1}}
+//             },
+//             options: { sort: { postTimestamp: -1 }}
+//         });
 
-        res.render('content/index', {
-            posts: user.posts,
-            user:req.user,
-            getTimeAgo: getTimeAgo
-        });
-    }
+//         res.render('content/index', {
+//             posts: user.posts,
+//             user:req.user,
+//             getTimeAgo: getTimeAgo
+//         });
+//     }
 
-    catch(error){
-        console.log(error)
-    }
-}
+//     catch(error){
+//         console.log(error)
+//     }
+// }
 
 const deletePost = async (req, res) => {
     const { userid, postid } = req.params;
@@ -221,6 +221,24 @@ const deletePost = async (req, res) => {
     }
 };
 
+const searchFriends = async (req, res) => {
+    const { userid } = req.query;
+    const userId = req.session.userId;
+
+    console.log(req.session);
+    try{
+        const result = await User.findOne({userid}).populate('posts')
+        console.log(result);
+        res.render(`content/search`, {
+            result,
+            getTimeAgo: getTimeAgo
+            
+        })
+    }
+    catch(error){
+        res.send(error)
+    }
+};
 
 
 function getTimeAgo(postTimestamp){
@@ -285,9 +303,10 @@ module.exports = {
     showDeletePage,
     deleteProfile,
     createNewPost,
-    createAComment,
-    renderPostAndComments,
+    // createAComment,
+    // renderPostAndComments,
     deletePost,
+    searchFriends,
     getTimeAgo
 }
 
