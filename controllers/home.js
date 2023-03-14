@@ -12,16 +12,30 @@ const showProfile = async (req, res) => {
         .populate({
             path: 'posts',
             model: Activity.Post,
-            select: 'post postTimestamp',
+            select: 'post postTimestamp comments',
             options: {sort: {postTimestamp: -1, _id: -1}
+        },
+        populate: {
+            path:'comments',
+            model: Activity.Comment,
+            select:'user content contentTimeStamp',
+            populate: {
+                path: 'user',
+                model: User,
+                select: 'userid'
+            }
         }})
+
 
         res.render('content/index', 
         {
             posts: user.posts, 
             user: user, 
+            comments: user.posts[0].comments,
             getTimeAgo: getTimeAgo  
         });
+
+        console.log(user.posts[0].comments)
         
     }
 
@@ -83,7 +97,6 @@ const showDeletePage = async (req, res) => {
 
 const deleteProfile = async (req, res) => {
     const { userid } = req.params
-    console.log({ userid });
 
     try{
         await User.deleteOne({ userid})
@@ -120,46 +133,37 @@ const createNewPost = async (req, res) => {
     }
 }
 
-// const createAComment = async (req, res, next) => {
+const createAComment = async (req, res, next) => {
 
-//     const { userid, postid } = req.params;
-//     const { commentNow } = req.body;
-    
-//     try{
-//         const post = await Activity.Post.findById(postid);
+    const { postid } = req.params;
+    const nowUser = req.user._id
+    const { commentNow } = req.body;
 
-//         const comment = new Activity.Comment(
-//             {
-//                 user: req.user._id, 
-//                 content: commentNow
-//             }
-//         );
+    try{
+        const post = await Activity.Post.findById(postid);
+        const comment = new Activity.Comment(
+            {
+                user: nowUser, 
+                content: commentNow
+            }
+        );
+        
+        await comment.save();
+        post.comments.push(comment._id);
+        await post.save();
 
-//         await comment.save();
-//         post.comments.push(comment);
-//         await post.save();
+        const updatedPost = await Activity.Post.findById(postid).populate({
+            path: 'comments',
+            model: Activity.Comment,
+            select: 'content contentTimestamp'
+        })
 
-//         const updatedPost = await Activity.Post.findById(postid).populate({
-//                 path: 'comments',
-//                 model: Activity.Comment,
-//                 select: 'content contentTimestamp',
-//                 options: {sort: {postTimestamp: -1}
-//         }})
+    }
 
-//         res.render('content/index', 
-//         {
-//             comments: updatedPost.comments, 
-//             user: req.user,
-//             getTimeAgo: getTimeAgo  
-//         });
-
-//         next();
-//     }
-
-//     catch (error) {
-//         console.log(error)
-//     }
-// }
+    catch (error) {
+        console.log(error)
+    }
+}
 
 // const renderPostAndComments = async (req, res) =>{
 //     const { userid } = req.params;
@@ -241,6 +245,7 @@ const searchFriends = async (req, res) => {
 };
 
 
+
 function getTimeAgo(postTimestamp){
     const now = Date.now();
     const timeDiff = now - new Date(postTimestamp).getTime();
@@ -303,7 +308,7 @@ module.exports = {
     showDeletePage,
     deleteProfile,
     createNewPost,
-    // createAComment,
+    createAComment,
     // renderPostAndComments,
     deletePost,
     searchFriends,

@@ -27,13 +27,12 @@ ul
                 button delete 
             p= getTimeAgo(post.postTimestamp )
         
-//-         if post.comments && post.comments.length > 0
-//-             ul 
-//-                 each comment in post.comments
-//-                     li 
-//-                         p= comment.user.userid  
-//-                         p= comment.content 
-//-                         p= getTimeAgo(comment.contentTimeStamp)
-//-         form(action=`/home/${user.userid}/comment/${post._id}`, method='POST')
-//-             input(type="text", name="commentNow", required, placeholder="Thoughts on this?")
-//-             button  Comment 
+            ul 
+                each comment in comments
+                    li 
+                        p= comment.user.userid       
+                        p= comment.content 
+                        p= getTimeAgo(comment.contentTimeStamp)
+        form(action=`/home/${user.userid}/comment/${post._id}`, method='POST')
+            input(type="text", name="commentNow", required, placeholder="Thoughts on this?")
+            button  Comment 

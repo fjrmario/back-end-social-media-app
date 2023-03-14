@@ -37,9 +37,11 @@ const postSchema = new Schema(
           default: [],
           ref: 'User'
         },
-        comments: [
-            commentSchema
-        ]
+        comments: {
+            type: Array,
+            default: [],
+            ref: 'Comment'
+        }
     }
 );
 
