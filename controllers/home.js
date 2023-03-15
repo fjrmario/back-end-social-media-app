@@ -81,7 +81,7 @@ const updateProfile = async (req, res) => {
     if (userid) updateFields.userid = userid;
     if (email) updateFields.email = email;
     const passwordRegex = /^(?=.*[A-Z])(?=.*[!@#$%^&*])(?=.{8,})/
-    
+
     if(!password){
         const user = await User.findOne({ userid: currentUser });
         updateFields.password = user.password;
@@ -342,17 +342,18 @@ const follow = async (req, res) => {
 
 function getTimeAgo(postTimestamp){
     const now = Date.now();
-    const timeDiff = now - new Date(postTimestamp).getTime();
+    const MILLISECONDS = 60000;
+    const timeDiff = Math.floor((now - new Date(postTimestamp).getTime())/ MILLISECONDS);
 
     // Time is in milliSeconds
-    const MINS = 60000
-    const HOURS = 3600000
-    const DAYS = 86400000
-    const WEEKS = 604800000
-    const YEARS = 2592000000
-    const MULTIPLEYEARS = 31536000000
+    const MINS = 1
+    const HOURS = 60
+    const DAYS = 1440
+    const WEEKS = 10080
+    const YEARS = 43200
+    const MULTIPLEYEARS = 525600
 
-    if(timeDiff < MINS){
+    if(timeDiff < MINS ){
 
         return "just now"
 
