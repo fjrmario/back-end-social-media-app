@@ -181,19 +181,19 @@ const deletePost = async (req, res) => {
     const { userid, postid } = req.params;
 
     try{
-
         const activity = await Activity.Post.findOne({_id:postid});
         const postOwnerId = activity.user;
         const user = await User.findOne(postOwnerId);
         const index = user.posts.indexOf(postid)
+        console.log(activity.comments)
         if(index > -1){
             user.posts.splice(index,1)
             await user.save();
         }
-       
-        await Activity.Post.deleteOne(
-            {_id:postid}
-        );
+
+        await Activity.Comment.deleteMany({_id:activity.comments})
+
+        await Activity.Post.deleteOne({ _id: postid })
         
         res.redirect(`/home/${userid}`);
     }

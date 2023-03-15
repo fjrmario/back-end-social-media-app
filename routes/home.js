@@ -2,12 +2,13 @@ var express = require('express');
 var router = express.Router();
 const homeController = require("../controllers/home")
 const signController = require("../controllers/sign")
+const { isAuth } = require("../controllers/sign")
 
 
 // show profile
 router.route('/:userid')
 .get(homeController.showProfile)
-.post(signController.isAuth, homeController.createNewPost)
+.post(isAuth, homeController.createNewPost)
 
 //activity with a post
 router.delete(`/:userid/posts/:postid`, homeController.deletePost )
