@@ -13,7 +13,12 @@ const commentSchema = new Schema([
         contentTimeStamp: {
             type: Date,
             default: Date.now()
-        }
+        },
+        likes: {
+            type: Array,
+            default: [],
+            ref: 'User'
+          }
     }
 ])
 

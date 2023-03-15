@@ -18,7 +18,7 @@ const showProfile = async (req, res) => {
         populate: {
             path:'comments',
             model: Activity.Comment,
-            select:'user content contentTimeStamp',
+            select:'user content contentTimeStamp likes',
             populate: {
                 path: 'user',
                 model: User,
@@ -227,6 +227,30 @@ const likePost = async (req, res) => {
     }
 }
 
+const likeComment = async (req, res) => {
+    const user = req.user.userid
+    const {postid} = req.params
+    console.log(postid);
+
+    try{
+        const loggedInUser = await User.findOne({userid: user})
+        const likedComment = await Activity.Comment.findOne({_id: postid})
+
+        if(!likedComment.likes.includes(loggedInUser.id)){
+            await Activity.Comment.updateOne({_id: postid}, { $push: {likes: loggedInUser.id}}, {multi: false});
+            res.redirect(`/home/${user}`)
+
+        } 
+        else {
+            await Activity.Comment.updateOne({_id: postid}, {$pull: {likes: loggedInUser.id}});
+            res.redirect(`/home/${user}`)
+
+        }
+    }
+    catch(error){
+        res.send(error)
+    }
+}
 const deleteComment = async (req, res) => {
     const { userid, postid } = req.params;
 
@@ -338,6 +362,7 @@ module.exports = {
     deletePost,
     likePost,
     searchFriends,
+    likeComment,
     getTimeAgo
 }
 

@@ -37,6 +37,9 @@ if posts.length > 0
                         li 
                             p= comment.user.userid      
                             p= comment.content 
+                            p #{comment.likes.length} Likes
+                            form(action=`/home/${user.userid}/comment/${comment._id}/?_method=PUT`, method='POST') 
+                                button Like comment 
                             form(action=`/home/${user.userid}/comment/${comment._id}/?_method=DELETE`, method='POST') 
                                 button delete comment 
                             p= getTimeAgo(comment.contentTimeStamp)

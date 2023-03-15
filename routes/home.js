@@ -28,6 +28,9 @@ router.route('/:userid/delete')
 router.route('/:userid/comment/:postid')
 .post(signController.isAuth, homeController.createAComment)
 .delete(signController.isAuth, homeController.deleteComment)
+.put(signController.isAuth, homeController.likeComment)
+
+
 
 //searching for friends
 router.get('/:userid/search', homeController.searchFriends )
