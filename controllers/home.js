@@ -12,7 +12,7 @@ const showProfile = async (req, res) => {
         .populate({
             path: 'posts',
             model: Activity.Post,
-            select: 'post postTimestamp comments',
+            select: 'post postTimestamp comments likes',
             options: {sort: {postTimestamp: -1, _id: -1}
         },
         populate: {
@@ -31,10 +31,15 @@ const showProfile = async (req, res) => {
             comments = user.posts[0].comments
         }
 
-        console.log
+        let likes = [];
+        if(user.posts[0]){
+            likes = user.posts[0].likes
+        }
+
         res.render('content/index', 
         {
             posts: user.posts, 
+            likes: likes,
             user: user, 
             comments: comments,
             getTimeAgo: getTimeAgo  
@@ -198,6 +203,30 @@ const deletePost = async (req, res) => {
     }
 };
 
+const likePost = async (req, res) => {
+    const nowUser = req.user.userid
+    const {postid} = req.params
+    try{
+        const loggedInUser = await User.findOne({userid: nowUser});
+        const likedPost = await Activity.Post.findOne({_id: postid});
+
+        
+        if(!likedPost.likes.includes(loggedInUser.id)){
+                await Activity.Post.updateOne({_id: postid}, { $push: {likes: loggedInUser.id}});
+                res.redirect(`/home/${nowUser}`)
+
+        } else {
+            await Activity.Post.updateOne({_id: postid}, {$pull: {likes: loggedInUser.id}});
+            res.redirect(`/home/${nowUser}`)
+
+        }
+
+    }
+    catch (error){
+        res.send(error)
+    }
+}
+
 const deleteComment = async (req, res) => {
     const { userid, postid } = req.params;
 
@@ -221,10 +250,12 @@ const deleteComment = async (req, res) => {
 
 const searchFriends = async (req, res) => {
     const { userid } = req.query;
-
-    console.log(req.params.userid);
+    const loggedInUsers = req.params
+    console.log(loggedInUsers);
 
     try{
+        const loggedInUser = await User.findOne(loggedInUsers)
+        console.log(loggedInUser);
         const result = await User.findOne({userid}).populate('posts')
         res.render(`content/search`, {
             result,
@@ -305,6 +336,7 @@ module.exports = {
     createAComment,
     deleteComment,
     deletePost,
+    likePost,
     searchFriends,
     getTimeAgo
 }

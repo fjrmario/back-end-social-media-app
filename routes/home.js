@@ -4,26 +4,33 @@ const homeController = require("../controllers/home")
 const signController = require("../controllers/sign")
 
 
-// update user profile
+// show profile
 router.route('/:userid')
-.put()
+.get(homeController.showProfile)
+.post(signController.isAuth, homeController.createNewPost)
 
-router.get('/:userid', homeController.showProfile);
-
-router.put('/:userid/edit', homeController.updateProfile);
-router.get('/:userid/edit', signController.isAuth, homeController.showEditPage)
-
-router.get('/:userid/delete', signController.isAuth, homeController.showDeletePage)
-router.delete('/:userid/delete', signController.isAuth, homeController.deleteProfile)
-
-router.post('/:userid', signController.isAuth, homeController.createNewPost);
-
-router.post('/:userid/comment/:postid', signController.isAuth, homeController.createAComment)
+//activity with a post
 router.delete(`/:userid/posts/:postid`, homeController.deletePost )
+router.put(`/:userid/posts/:postid`, signController.isAuth, homeController.likePost)
 
-router.delete(`/:userid/comment/:postid`, signController.isAuth, homeController.deleteComment )
 
+// edit profile
+router.route('/:userid/edit')
+.get(signController.isAuth, homeController.showEditPage)
+.put(homeController.updateProfile)
 
+// deactivate account
+router.route('/:userid/delete')
+.get(signController.isAuth, homeController.showDeletePage)
+.delete(signController.isAuth, homeController.deleteProfile)
+
+//commenting
+router.route('/:userid/comment/:postid')
+.post(signController.isAuth, homeController.createAComment)
+.delete(signController.isAuth, homeController.deleteComment)
+
+//searching for friends
 router.get('/:userid/search', homeController.searchFriends )
+
 
 module.exports = router;

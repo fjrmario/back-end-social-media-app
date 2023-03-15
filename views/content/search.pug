@@ -12,7 +12,12 @@ if result
             li 
                 p= result.userid
                 p= post.post 
+                p #{post.likes.length} likes
                 p= getTimeAgo(post.postTimestamp )
+
+                form(action=`/home/${back}/search/${post._id}`, method='POST')
+                    input(type="text", name="commentNow", required, placeholder="Thoughts on this?")
+                    button  Comment 
     
 else 
     p No user found with said userid... Sorry! 
