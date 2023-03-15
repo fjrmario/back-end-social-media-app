@@ -1,7 +1,17 @@
 h1 Hello #{user.userid}, Welcome Back!
+
+
+p #{user.bio}
+
+
 a(href=`/home/${user.userid}/edit`) Edit Profile
 br
 a(href=`/home/${user.userid}/delete`) Delete Profile 
+br
+form(action=`/users/signout`, method='POST') 
+    button Sign Out
+
+
 
 form(action=`/home/${user.userid}/search`, method='GET')
     input(type="text", name="userid", required, placeholder="Search for friends")

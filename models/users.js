@@ -13,6 +13,7 @@ const userSchema = new Schema(
         email:{
             type: String,
             required: true,
+            match: /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/,
             unique: true,
         },
         password: {
@@ -20,6 +21,10 @@ const userSchema = new Schema(
             required: true,
             match: /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*]).{8,}$/,
             minLength: 8
+        },
+        bio:{
+            type: String,
+            maxLength: 20
         },
         friends: {
             type: Array,

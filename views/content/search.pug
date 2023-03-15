@@ -3,6 +3,9 @@ a(href=`/home/${back}`) Back Home
 if result
     h1 #{result.userid}
 
+    form(action=`/home/${back}/search/?_method=PUT`, method='POST')
+        button(type='submit', name='userid' value=`${result.userid}`) Follow Me!
+
     p #{result.userid} have: #{result.friends.length} friends 
     p #{result.userid} have created: #{result.posts.length} posts
 

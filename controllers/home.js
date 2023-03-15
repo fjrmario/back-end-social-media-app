@@ -6,7 +6,11 @@ const bcrypt = require('bcrypt');
 
 const showProfile = async (req, res) => {
     const { userid } = req.params
+    noSession = req.session.userId
 
+    if(!noSession){
+        res.redirect('/home/:userid/search')
+    }
     try{
         const user = await User.findOne({ userid })
         .populate({
@@ -38,6 +42,7 @@ const showProfile = async (req, res) => {
 
         res.render('content/index', 
         {
+            bio: user.bio,
             posts: user.posts, 
             likes: likes,
             user: user, 
@@ -69,15 +74,29 @@ const showEditPage = async (req, res) => {
 
 const updateProfile = async (req, res) => {
     const currentUser = req.params.userid;
-    const { userid, email, password } = req.body;
+    const { userid, email, password, bio } = req.body;
   
     const updateFields = {};
+   
     if (userid) updateFields.userid = userid;
     if (email) updateFields.email = email;
-    if (password) {
-      const saltRounds = 10;
-      const hashedPassword = await bcrypt.hash(password, saltRounds);
-      updateFields.password = hashedPassword;
+    const passwordRegex = /^(?=.*[A-Z])(?=.*[!@#$%^&*])(?=.{8,})/
+    
+    if(!password){
+        const user = await User.findOne({ userid: currentUser });
+        updateFields.password = user.password;
+    } else if (passwordRegex.test(password)) {
+        const saltRounds = 10;
+        const hashedPassword = await bcrypt.hash(password, saltRounds);
+        updateFields.password = hashedPassword;
+    } else{
+        return res.status(400).send('Password requires to be a minimum of 8 characters, an uppercase and a special character.')
+    }
+
+    if(!bio) {
+        updateFields.bio = bio
+    } else {
+        updateFields.bio = bio
     }
   
     try {
@@ -293,6 +312,32 @@ const searchFriends = async (req, res) => {
     }
 };
 
+const follow = async (req, res) => {
+    const user = req.query.userid
+    res.send(`${user}`)
+    console.log(user)
+    // const {postid} = req.params
+    // console.log(postid);
+
+    // try{
+    //     const loggedInUser = await User.findOne({userid: user})
+    //     const likedComment = await Activity.Comment.findOne({_id: postid})
+
+    //     if(!likedComment.likes.includes(loggedInUser.id)){
+    //         await Activity.Comment.updateOne({_id: postid}, { $push: {likes: loggedInUser.id}}, {multi: false});
+    //         res.redirect(`/home/${user}`)
+
+    //     } 
+    //     else {
+    //         await Activity.Comment.updateOne({_id: postid}, {$pull: {likes: loggedInUser.id}});
+    //         res.redirect(`/home/${user}`)
+
+    //     }
+    // }
+    // catch(error){
+    //     res.send(error)
+    // }
+}
 
 
 function getTimeAgo(postTimestamp){
@@ -363,6 +408,7 @@ module.exports = {
     likePost,
     searchFriends,
     likeComment,
+    follow,
     getTimeAgo
 }
 

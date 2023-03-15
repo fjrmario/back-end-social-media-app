@@ -1,15 +1,20 @@
 form(action=`/home/${user.userid}/edit?_method=PUT`, method='POST')
     p #{user.userid}
-        input(type="text", name="userid", placeholder="New Userid here")
+        input(type="text", name="userid", value=`${user.userid}`)
         br
 
     p #{user.email}
-        input(type="text", name="email", placeholder="update your email here")
+        input(type="text", name="email", value=`${user.email}`)
         br
 
     p Update your password here:
         input(type="text", name="password", placeholder="update your password here")
         br
+
+    p Bio here:
+        input(type="text", name="bio", value=`${user.bio}`)
+        br
+
 
     button Edit 
 

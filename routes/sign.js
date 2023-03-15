@@ -10,4 +10,7 @@ router.route('/login')
 .get(signController.showSignInPage)
 .post(signController.signIn)
 
+router.route('/signout')
+.post(signController.signOut)
+
 module.exports = router;
