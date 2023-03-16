@@ -415,6 +415,38 @@ const follow = async (req, res) => {
     }
 }
 
+const commentOnSearch = async (req, res) => {
+    const { userid, postid } = req.params;
+    const nowUser = req.user._id
+    const { commentNow } = req.body;
+
+    try{
+        const post = await Activity.Post.findById(postid);
+        const comment = new Activity.Comment(
+            {
+                user: nowUser, 
+                content: commentNow
+            }
+        );
+        
+        await comment.save();
+        post.comments.push(comment._id);
+        await post.save();
+
+        const updatedPost = await Activity.Post.findById(postid).populate({
+            path: 'comments',
+            model: Activity.Comment,
+            select: 'content contentTimestamp'
+        })
+
+        res.send('updated Successfully')
+    }
+
+    catch (error) {
+        console.log(error)
+    }
+}
+
 const showTimeline = async (req, res) => {
     const user = req.session.userId;
     const { userid } = req.params
@@ -460,14 +492,6 @@ const showTimeline = async (req, res) => {
     catch(err){
         console.log(err)
     }
-}
-
-const showLikes = async (req, res) => {
-    const {userid} = req.params
-
-    // try{
-    //     const 
-    // }
 }
 
 function getTimeAgo(postTimestamp){
@@ -541,9 +565,9 @@ module.exports = {
     likeComment,
     follow,
     showTimeline,
-    showLikes,
     createTimelineComment,
     deleteTimelineComment,
+    commentOnSearch,
     getTimeAgo
 }
 

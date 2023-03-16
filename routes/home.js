@@ -39,13 +39,16 @@ router.route('/:userid/search')
 .get( homeController.searchFriends )
 .put( homeController.follow)
 
+router.route(`/:userid/search/:postid`)
+.post(isAuth, homeController.commentOnSearch)
+
 router.route('/:userid/likes')
-.get(homeController.showLikes)
+// .get(homeController.showLikes)
 
 // Timeline comments
 router.route(`/:userid/timeline/:postid`)
 .post(isAuth, homeController.createTimelineComment)
-.delete(isAuth, homeController.deleteTimelineComment)
+.delete(isAuth, homeController.deleteComment)
 
 
 module.exports = router;
