@@ -37,7 +37,7 @@ if posts.length > 0
             li 
                 p= user.userid
                 p= post.post 
-                p #{likes.length} Likes
+                a(href=`/home/${user.userid}/likes`)  #{likes.length} Likes
                 form(action=`/home/${user.userid}/posts/${post._id}/?_method=PUT`, method='POST') 
                     button Like post
                 form(action=`/home/${user.userid}/posts/${post._id}/?_method=DELETE`, method='POST') 

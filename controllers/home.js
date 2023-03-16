@@ -340,6 +340,7 @@ const follow = async (req, res) => {
 
 const showTimeline = async (req, res) => {
     const user = req.session.userId;
+    const { userid } = req.params
     try{
         const loggedInUser = await User.findOne({_id: user}).populate({
             path: 'friends',
@@ -365,12 +366,21 @@ const showTimeline = async (req, res) => {
         });
 
         res.render('content/timeline', {
+            currentUser: userid,
             timelines: sortedTimelines,
             getTimeAgo: getTimeAgo})
     }
     catch(err){
         console.log(err)
     }
+}
+
+const showLikes = async (req, res) => {
+    const {userid} = req.params
+
+    // try{
+    //     const 
+    // }
 }
 
 function getTimeAgo(postTimestamp){
@@ -444,6 +454,7 @@ module.exports = {
     likeComment,
     follow,
     showTimeline,
+    showLikes,
     getTimeAgo
 }
 

@@ -39,5 +39,8 @@ router.route('/:userid/search')
 .get( homeController.searchFriends )
 .put( homeController.follow)
 
+router.route('/:userid/likes')
+.get(homeController.showLikes)
+
 
 module.exports = router;
