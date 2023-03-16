@@ -18,6 +18,14 @@ if result
                 p #{post.likes.length} likes
                 p= getTimeAgo(post.postTimestamp )
 
+                if post.comments.length > 0
+                    ul  
+                        each comment in post.comments 
+                            li  
+                                p= comment.user.userid  
+                                p= comment.content
+                                p= getTimeAgo(comment.contentTimeStamp)
+
                 form(action=`/home/${back}/search/${post._id}`, method='POST')
                     input(type="text", name="commentNow", required, placeholder="Thoughts on this?")
                     button  Comment 

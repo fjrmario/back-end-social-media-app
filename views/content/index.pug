@@ -43,18 +43,19 @@ if posts.length > 0
                 form(action=`/home/${user.userid}/posts/${post._id}/?_method=DELETE`, method='POST') 
                     button delete post
                 p= getTimeAgo(post.postTimestamp )
-            
-                ul 
-                    each comment in comments
-                        li 
-                            p= comment.user.userid      
-                            p= comment.content 
-                            p #{comment.likes.length} Likes
-                            form(action=`/home/${user.userid}/comment/${comment._id}/?_method=PUT`, method='POST') 
-                                button Like comment 
-                            form(action=`/home/${user.userid}/comment/${comment._id}/?_method=DELETE`, method='POST') 
-                                button delete comment 
-                            p= getTimeAgo(comment.contentTimeStamp)
+
+                if post.comments.length > 0
+                    ul 
+                        each comment in comments
+                            li 
+                                p= comment.user.userid      
+                                p= comment.content 
+                                p #{comment.likes.length} Likes
+                                form(action=`/home/${user.userid}/comment/${comment._id}/?_method=PUT`, method='POST') 
+                                    button Like comment 
+                                form(action=`/home/${user.userid}/comment/${comment._id}/?_method=DELETE`, method='POST') 
+                                    button delete comment 
+                                p= getTimeAgo(comment.contentTimeStamp)
             form(action=`/home/${user.userid}/comment/${post._id}`, method='POST')
                 input(type="text", name="commentNow", required, placeholder="Thoughts on this?")
                 button  Comment 

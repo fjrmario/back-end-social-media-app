@@ -127,8 +127,19 @@ const deleteProfile = async (req, res) => {
     const { userid } = req.params
 
     try{
-        await User.deleteOne({ userid})
-        res.redirect(`/`)
+         // Get the user's posts
+        const user = await User.find({userid: userid });
+
+        // Delete every related post from the user
+        await Activity.Post.deleteMany({user: user[0].id})
+
+        // Delete every related comments from the user
+        await Activity.Comment.deleteMany({user: user[0]._id})
+
+        // Delete existence
+        await User.deleteOne({ userid });
+ 
+        res.redirect('/');
     }
     catch(error){
         res.send(error)
@@ -161,7 +172,7 @@ const createNewPost = async (req, res) => {
     }
 }
 
-const createAComment = async (req, res, next) => {
+const createAComment = async (req, res) => {
     const { userid, postid } = req.params;
     const nowUser = req.user._id
     const { commentNow } = req.body;
@@ -324,13 +335,46 @@ const deleteComment = async (req, res) => {
     }
 }
 
+const deleteTimelineComment = async (req, res) => {
+    const { userid, postid } = req.params;
+
+    try{
+        const comment = await Activity.Comment.findOne({_id:postid});
+        const post = await Activity.Post.findOne({ comments: comment._id })
+        const commentIndex = post.comments.indexOf(postid)
+        console.log(commentIndex);
+        post.comments.splice(commentIndex, 1)
+        await post.save();
+
+        await Activity.Comment.findOneAndDelete({_id:postid});
+
+        res.redirect(`/home/${userid}/timeline`);
+    }
+    
+    catch (error){
+        console.log(error)
+    }
+}
+
 const searchFriends = async (req, res) => {
     const { userid } = req.query;
     const loggedInUsers = req.params
 
     try{
         const loggedInUser = await User.findOne(loggedInUsers)
-        const result = await User.findOne({userid}).populate('posts')
+        const result = await User.findOne({ userid }).populate({
+            path: 'posts',
+            populate: {
+                path: 'comments',
+                model: Activity.Comment,
+                select: 'user content contentTimeStamp likes',
+                populate: {
+                    path: 'user',
+                    model: 'User',
+                    select: 'userid',
+                },
+            },
+        });
         res.render(`content/search`, {
             result,
             back: req.params.userid,
@@ -499,6 +543,7 @@ module.exports = {
     showTimeline,
     showLikes,
     createTimelineComment,
+    deleteTimelineComment,
     getTimeAgo
 }
 
