@@ -78,7 +78,8 @@ const signOut = async (req, res) => {
     req.session.destroy()
     console.log('session destroyed');
     }
-    // res.clearCookie('session');
+    res.clearCookie('session');
+    res.clearCookie('connect.sid', {path:'/'});
     res.redirect('/')
 }
 

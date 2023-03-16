@@ -1,0 +1,20 @@
+h1 TIMELINE
+ul 
+    each timeline in timelines
+        each post in timeline.posts
+            li 
+                p #{timeline.userid} 
+                p #{post.post}
+                P= getTimeAgo(post.postTimestamp )
+
+//- ul  
+//-     each post in posts 
+//-         li 
+//-             p= user.userid
+//-             p= post.post 
+//-             p #{likes.length} Likes
+//-             form(action=`/home/${user.userid}/posts/${post._id}/?_method=PUT`, method='POST') 
+//-                 button Like post
+//-             form(action=`/home/${user.userid}/posts/${post._id}/?_method=DELETE`, method='POST') 
+//-                 button delete post
+//-             p= getTimeAgo(post.postTimestamp )

@@ -10,6 +10,9 @@ router.route('/:userid')
 .get(isAuth, homeController.showProfile)
 .post(isAuth, homeController.createNewPost)
 
+router.route(`/:userid/timeline`)
+.get(homeController.showTimeline)
+
 //activity with a post
 router.delete(`/:userid/posts/:postid`, homeController.deletePost )
 router.put(`/:userid/posts/:postid`, isAuth, homeController.likePost)

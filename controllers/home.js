@@ -294,11 +294,9 @@ const deleteComment = async (req, res) => {
 const searchFriends = async (req, res) => {
     const { userid } = req.query;
     const loggedInUsers = req.params
-    console.log(loggedInUsers);
 
     try{
         const loggedInUser = await User.findOne(loggedInUsers)
-        console.log(loggedInUser);
         const result = await User.findOne({userid}).populate('posts')
         res.render(`content/search`, {
             result,
@@ -313,32 +311,67 @@ const searchFriends = async (req, res) => {
 };
 
 const follow = async (req, res) => {
-    const user = req.query.userid
-    res.send(`${user}`)
-    console.log(user)
-    // const {postid} = req.params
-    // console.log(postid);
+    const user = req.body.userid
+    const loggedInUser = req.session.userId;
+    
+    try{
+        const nowUser = await User.findOne({_id: loggedInUser})
+        const followUser = await User.findOne({userid: user})
 
-    // try{
-    //     const loggedInUser = await User.findOne({userid: user})
-    //     const likedComment = await Activity.Comment.findOne({_id: postid})
+        if(!nowUser.friends.includes(followUser._id)){
+            nowUser.friends.push(followUser._id)
+            await nowUser.save()
+            res.send('followed')
+        }
+        else{
+            const index = nowUser.friends.indexOf(followUser._id)
+            if(index !== -1){
+                nowUser.friends.splice(index, 1)
+                await nowUser.save()
+                res.send('unfollowed')
+            }
+        }
+    }
 
-    //     if(!likedComment.likes.includes(loggedInUser.id)){
-    //         await Activity.Comment.updateOne({_id: postid}, { $push: {likes: loggedInUser.id}}, {multi: false});
-    //         res.redirect(`/home/${user}`)
-
-    //     } 
-    //     else {
-    //         await Activity.Comment.updateOne({_id: postid}, {$pull: {likes: loggedInUser.id}});
-    //         res.redirect(`/home/${user}`)
-
-    //     }
-    // }
-    // catch(error){
-    //     res.send(error)
-    // }
+    catch(error){
+        res.send(error)
+    }
 }
 
+const showTimeline = async (req, res) => {
+    const user = req.session.userId;
+    try{
+        const loggedInUser = await User.findOne({_id: user}).populate({
+            path: 'friends',
+            select: 'userid posts',
+            populate: {
+                path: 'posts',
+                select: 'post postTimestamp comments',
+            }
+        })
+        
+        const timelinesWithLatestPostTimestamp = loggedInUser.friends.map(timeline => {
+            const latestPostTimestamp = timeline.posts.length > 0
+              ? timeline.posts[0].postTimestamp
+              : 0;
+            return {
+              ...timeline.toObject(),
+              latestPostTimestamp,
+            };
+        });
+
+        const sortedTimelines = timelinesWithLatestPostTimestamp.sort((a, b) => {
+            return b.latestPostTimestamp - a.latestPostTimestamp;
+        });
+
+        res.render('content/timeline', {
+            timelines: sortedTimelines,
+            getTimeAgo: getTimeAgo})
+    }
+    catch(err){
+        console.log(err)
+    }
+}
 
 function getTimeAgo(postTimestamp){
     const now = Date.now();
@@ -410,6 +443,7 @@ module.exports = {
     searchFriends,
     likeComment,
     follow,
+    showTimeline,
     getTimeAgo
 }
 
