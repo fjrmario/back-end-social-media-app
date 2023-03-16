@@ -42,5 +42,9 @@ router.route('/:userid/search')
 router.route('/:userid/likes')
 .get(homeController.showLikes)
 
+// Timeline comments
+router.route(`/:userid/timeline/:postid`)
+.post(isAuth, homeController.createTimelineComment)
+
 
 module.exports = router;

@@ -195,6 +195,39 @@ const createAComment = async (req, res, next) => {
     }
 }
 
+const createTimelineComment = async (req, res) => {
+    const { userid, postid } = req.params;
+    const nowUser = req.user._id
+    const { commentNow } = req.body;
+
+    try{
+        const post = await Activity.Post.findById(postid);
+        const comment = new Activity.Comment(
+            {
+                user: nowUser, 
+                content: commentNow
+            }
+        );
+        
+        await comment.save();
+        post.comments.push(comment._id);
+        await post.save();
+
+        const updatedPost = await Activity.Post.findById(postid).populate({
+            path: 'comments',
+            model: Activity.Comment,
+            select: 'content contentTimestamp'
+        })
+
+        res.redirect(`/home/${userid}/timeline`);
+    }
+
+    catch (error) {
+        console.log(error)
+    }
+}
+
+
 
 const deletePost = async (req, res) => {
     const { userid, postid } = req.params;
@@ -348,8 +381,16 @@ const showTimeline = async (req, res) => {
             populate: {
                 path: 'posts',
                 select: 'post postTimestamp comments',
-            }
-        })
+                populate: {
+                    path:'comments',
+                    model: Activity.Comment,
+                    select:'user content contentTimeStamp likes',
+                    populate: {
+                        path: 'user',
+                        model: User,
+                        select: 'userid'
+                    }
+                }}})
         
         const timelinesWithLatestPostTimestamp = loggedInUser.friends.map(timeline => {
             const latestPostTimestamp = timeline.posts.length > 0
@@ -364,6 +405,8 @@ const showTimeline = async (req, res) => {
         const sortedTimelines = timelinesWithLatestPostTimestamp.sort((a, b) => {
             return b.latestPostTimestamp - a.latestPostTimestamp;
         });
+
+        console.log(sortedTimelines)
 
         res.render('content/timeline', {
             currentUser: userid,
@@ -455,6 +498,7 @@ module.exports = {
     follow,
     showTimeline,
     showLikes,
+    createTimelineComment,
     getTimeAgo
 }
 

@@ -6,7 +6,24 @@ ul
             li 
                 p #{timeline.userid} 
                 p #{post.post}
-                P= getTimeAgo(post.postTimestamp )
+                p= getTimeAgo(post.postTimestamp)
+
+                //- check if there are comments for this post
+                if post.comments.length
+                    ul 
+                        each comment in post.comments 
+                            li 
+                                p #{comment.user.userid}
+                                p #{comment.content}
+                                p= getTimeAgo(comment.contentTimeStamp)
+                                form(action=`/home/${currentUser}/timeline/${comment._id}/?_method=DELETE`, method='POST') 
+                                    button delete comment 
+                                //- p #{comment.likes.length} Likes
+                            //- form(action=`/home/${user.userid}/comment/${comment._id}/?_method=PUT`, method='POST') 
+                                button Like comment 
+                form(action=`/home/${currentUser}/timeline/${post._id}`, method='POST')
+                    input(type="text", name="commentNow", required, placeholder="Thoughts on this?")
+                    button  Comment 
 
 //- ul  
 //-     each post in posts 
