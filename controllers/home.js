@@ -79,7 +79,12 @@ const updateProfile = async (req, res) => {
     const updateFields = {};
    
     if (userid) updateFields.userid = userid;
-    if (email) updateFields.email = email;
+    const emailRegex = /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/
+    if (emailRegex.test(email)) {
+        updateFields.email = email;
+    } else{
+        return res.status(400).send('Please provide a proper email')
+    }
     const passwordRegex = /^(?=.*[A-Z])(?=.*[!@#$%^&*])(?=.{8,})/
 
     if(!password){
@@ -321,7 +326,6 @@ const deleteComment = async (req, res) => {
         const comment = await Activity.Comment.findOne({_id:postid});
         const post = await Activity.Post.findOne({ comments: comment._id })
         const commentIndex = post.comments.indexOf(postid)
-        console.log(commentIndex);
         post.comments.splice(commentIndex, 1)
         await post.save();
 
@@ -342,7 +346,6 @@ const deleteTimelineComment = async (req, res) => {
         const comment = await Activity.Comment.findOne({_id:postid});
         const post = await Activity.Post.findOne({ comments: comment._id })
         const commentIndex = post.comments.indexOf(postid)
-        console.log(commentIndex);
         post.comments.splice(commentIndex, 1)
         await post.save();
 

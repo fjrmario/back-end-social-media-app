@@ -11,10 +11,10 @@ form(action=`/home/${user.userid}/edit?_method=PUT`, method='POST')
         input(type="text", name="password", placeholder="update your password here")
         br
 
+    if user.bio === undefined ? user.bio ="" : user.bio=`${user.bio}`
     p Bio here:
-        input(type="text", name="bio", value=`${user.bio}`)
+        input(type="text", name="bio", value="")
         br
-
 
     button Edit 
 

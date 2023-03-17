@@ -48,7 +48,7 @@ router.route('/:userid/likes')
 // Timeline comments
 router.route(`/:userid/timeline/:postid`)
 .post(isAuth, homeController.createTimelineComment)
-.delete(isAuth, homeController.deleteComment)
+.delete(isAuth, homeController.deleteTimelineComment)
 
 
 module.exports = router;
